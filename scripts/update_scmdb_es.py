@@ -6,7 +6,9 @@ Sources:
 
 Outputs (in the repo root):
   - lang-es-latest.json              fixed name -> the URL never changes
-  - lang-es-global-<version>.json    versioned copy, kept for history
+  - lang-es-global-<version>.json    one per SCMDB version; ALL of them are
+                                     rewritten with the current content so
+                                     old links keep working
 
 The translation must stay the pure Thord82 text (no Smart Citizen tags), which
 is why it is downloaded straight from Thord82 and not from our other repo.
@@ -75,8 +77,12 @@ with tempfile.TemporaryDirectory() as tmp:
     version = data.get("version", "unknown")
     print(f"Version: {version} | translated: {translated} | keys: {data.get('keyCount')}")
 
+    # Every Spanish file ever published gets the current content, so any old
+    # link someone shared keeps serving the latest translation.
+    targets = {"lang-es-latest.json", f"lang-es-global-{version}.json"}
+    targets |= {p.name for p in repo.glob("lang-es-global-*.json")}
     changed = []
-    for name in ("lang-es-latest.json", f"lang-es-global-{version}.json"):
+    for name in sorted(targets):
         dest = repo / name
         if not dest.exists() or dest.read_text(encoding="utf-8") != text:
             dest.write_text(text, encoding="utf-8")

@@ -1,168 +1,37 @@
-# SCMDB Community Translations
+# SCMDB en español
 
-Community-maintained translations for [SCMDB](https://scmdb.dev) — the Star Citizen Mission & Data Browser.
+Traducción al español para [SCMDB](https://scmdb.dev), la base de datos de misiones de Star Citizen.
 
-SCMDB displays all data in English by default. This repo provides the tools for community translation teams to create their own language files that users can load in the browser.
+> ⚙️ **Sistema automático, no gestionado.**
+> Este repositorio se actualiza solo: no hay nadie revisándolo ni manteniéndolo a mano. Si algo se rompe, se corregirá, pero sin plazos ni garantías. Los textos son los de la traducción de Thord82 tal cual; los errores de traducción se reportan en [su repositorio](https://github.com/Thord82/Star_citizen_ES/issues), no aquí.
 
-## For Translation Teams
+## Cómo usarlo
 
-### What you need
-
-1. **Python 3.10+** (no external dependencies)
-2. **`build_lang_template.py`** (this repo)
-3. **`lang-template-*.json`** (this repo, updated each patch by SCMDB)
-4. **Your community `global.ini`** (the Star Citizen translation file your team maintains)
-
-### How to build a translation
-
-```bash
-# PTU (default)
-python build_lang_template.py --translate path/to/your_global.ini
-
-# LIVE (when a live template is available)
-python build_lang_template.py -p live --translate path/to/your_global.ini
-```
-
-The `-p` flag selects which template to use when multiple are present (e.g. `lang-template-*-ptu.*.json` vs `lang-template-*-live.*.json`). Default is `ptu`.
-
-This produces a `lang-your_global-4.7.0-ptu.11494258.json` file with a coverage report:
-
-```
-=== Result ===
-  File:          lang-your_global-4.7.0-ptu.11494258.json
-  Total:         3340
-  Translated:    3250
-  Missing:       3
-  Mismatch:      26 (token placeholders in foreign text)
-  Substituted:   165 (placeholders replaced with foreign values)
-  No loc key:    80 (kept as-is)
-```
-
-Missing keys automatically fall back to English text.
-
-#### Token substitution
-
-The tool automatically resolves token placeholders in translated text. For example, if a mission title contains `[RANK]`, the tool looks up the translated rank name (e.g. "Master" -> "Мастер") in your `global.ini` and inserts it. This reduces manual post-processing significantly.
-
-#### Output filename
-
-The output filename is derived from your `global.ini` filename. To control the language code in the output, name your INI file accordingly:
-
-```bash
-# Input: global_ru.ini -> Output: lang-global_ru-4.7.0-ptu.11494258.json
-# Input: german_global.ini -> Output: lang-german_global-4.7.0-ptu.11494258.json
-```
-
-### How to publish your translation
-
-1. Host the generated `lang-*.json` file somewhere publicly accessible:
-   - **GitHub** (recommended): Push to your own repo, use the Raw URL
-   - **Any web server** with CORS enabled (`Access-Control-Allow-Origin: *`)
-   - **GitHub Gist**: Upload and use the Raw URL
-
-2. Share the direct URL with your community:
+1. En SCMDB abre los ajustes (⚙️) → **Community Translation**.
+2. Pega esta URL:
    ```
-   https://raw.githubusercontent.com/your-team/scmdb-translations/main/lang-de-4.7.0-ptu.11494258.json
+   https://raw.githubusercontent.com/Crosus97/SCMDB_LANG/refs/heads/main/lang-es-latest.json
    ```
+3. Listo. La URL **no cambia nunca**: al recargar SCMDB cargará siempre la versión más reciente.
 
-3. When a new patch drops:
-   - Pull the updated `lang-template-*.json` and `build_lang_template.py` from this repo
-   - Re-run `python build_lang_template.py --translate path/to/your_global.ini`
-   - Update your hosted file
+Las URLs antiguas (`lang-es-global-<versión>.json`) siguen funcionando y también reciben siempre la versión actual, pero es mejor usar la de arriba.
 
-### File format
+## Cómo se actualiza
 
-The output JSON contains English + translated text for each key:
+Cada 6 horas una GitHub Action ([`update-scmdb-es.yml`](.github/workflows/update-scmdb-es.yml)):
 
-```json
-{
-  "version": "4.7.0-ptu.11494258",
-  "sourceLanguage": "en",
-  "targetLanguage": "global_ru",
-  "keyCount": 3340,
-  "keys": {
-    "Adagio_BasicSalvage_Title_01": {
-      "en": "Claim #[CLAIM]: [SHIP] Salvage Rights",
-      "tr": "ПРАВО НА УТИЛИЗАЦИЮ #[CLAIM]: [SHIP]"
-    },
-    "items_commodities_gold_ore": {
-      "en": "Gold (Ore)",
-      "tr": "Золото (Руда)"
-    }
-  }
-}
-```
+1. Descarga la plantilla LIVE más reciente de [KrovaxCode/SCMDB_LANG](https://github.com/KrovaxCode/SCMDB_LANG).
+2. Descarga el `global.ini` actual de [Thord82/Star_citizen_ES](https://github.com/Thord82/Star_citizen_ES) (rama `propuestas_thord`).
+3. Genera el archivo con el script oficial de SCMDB y, solo si ha cambiado, lo publica.
 
-## For Users
+Si la generación sale mal (menos de 1.000 textos traducidos) no se publica nada y se mantiene la versión anterior. Los textos que todavía no están traducidos aparecen en inglés.
 
-### Quick start (no account needed)
+## Créditos
 
-Add `?lang=URL` to any SCMDB page:
+- **Traducción:** [Thord82](https://github.com/Thord82/Star_citizen_ES).
+- **Plantillas y herramienta:** [SCMDB / KrovaxCode](https://github.com/KrovaxCode/SCMDB_LANG).
+- **Automatización:** Crosus97.
 
-```
-https://scmdb.dev?lang=https://raw.githubusercontent.com/team-de/scmdb-lang/main/lang-de.json
-```
+¿Buscas el juego en español con estadísticas de naves, componentes y misiones? → [StarCitizen-ES-SmartCitizen](https://github.com/Crosus97/StarCitizen-ES-SmartCitizen)
 
-The language preference is saved in your browser. You only need to do this once.
-
-### With an SCMDB account
-
-Go to Settings and paste the language file URL. The setting syncs across devices.
-
-### How to remove
-
-- **Without account**: Clear browser data, or visit `scmdb.dev?lang=clear`
-- **With account**: Remove the URL from Settings
-
-## Available Languages
-
-Translation teams can be listed here once they publish their files:
-
-| Language | Team | URL | Coverage |
-|----------|------|-----|----------|
-| *Your language here* | — | — | — |
-
-If your team has published a translation, open an issue to get listed.
-
-## Key Statistics (~3,300 keys per version)
-
-| Category | Count | Notes |
-|----------|-------|-------|
-| Mission Titles | ~685 | Contract/mission names |
-| Descriptions | ~724 | Mission briefing texts |
-| Locations | ~626 | Planets, moons, stations |
-| Ships | ~144 | Ship names |
-| Items | ~1,033 | Weapons, armor, equipment |
-| Factions | ~35 | In-game organizations |
-| Reputation | ~55 | Rank and scope names |
-| Mining | ~38 | Mineable elements |
-
-## What is translated?
-
-Translations cover **in-game data only** — mission titles, descriptions, location names, ship names, item names, faction names, and other strings sourced from Star Citizen's `global.ini`.
-
-Website UI elements (buttons, labels, column headers, tooltips, filters, etc.) always remain in English. This is intentional — UI localization would require layout adjustments, pluralization rules, and formatting changes that go far beyond simple string replacement.
-
-## FAQ
-
-**Q: Do I need a Star Citizen account?**
-A: No. You just need Python and a `global.ini` file (your translation team provides this).
-
-**Q: Why are some keys missing from my translation?**
-A: CIG adds new mission texts each patch. If your `global.ini` doesn't have them yet, English is used as fallback.
-
-**Q: What are "Mismatch" entries?**
-A: CIG sometimes has different English text in foreign language `global.ini` files compared to the English version. These mismatches are reported but the translated text is still included.
-
-**Q: What are "Substituted" entries?**
-A: Mission tokens like `[RANK]` or `[CARGO_GRADE]` are automatically replaced with the translated value from your `global.ini`. For example, `[RANK]` becomes "Мастер" in Russian.
-
-**Q: Can I manually edit the output JSON?**
-A: Yes. You can fix or improve any translation directly in the JSON file after generation.
-
-**Q: How often does the template update?**
-A: With every Star Citizen patch that changes mission data. Check this repo for new `lang-template-*.json` files.
-
-## License
-
-The translation tooling is provided as-is. Star Citizen game data belongs to Cloud Imperium Games.
+Proyecto no oficial, sin relación con Cloud Imperium Games.
