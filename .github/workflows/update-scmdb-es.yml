@@ -1,0 +1,44 @@
+name: Actualizar traducción ES para SCMDB
+
+# Rebuilds lang-es-latest.json whenever the SCMDB template (KrovaxCode) or the
+# Thord82 translation changes. Checks every 6 hours; commits only if the
+# resulting file is different.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/update_scmdb_es.py
+      - .github/workflows/update-scmdb-es.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-scmdb-es
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build Spanish SCMDB file
+        id: build
+        run: python scripts/update_scmdb_es.py
+      - name: Commit if changed
+        run: |
+          git add -A lang-es-latest.json lang-es-global-*.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Actualiza traducción ES ${{ steps.build.outputs.version }} (${{ steps.build.outputs.translated }} traducidas)"
+          git push
